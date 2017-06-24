@@ -9,14 +9,8 @@ class UmlClassFigGenerator(object):
     def __init__(self, file_list):
         self.file_list = file_list
         # notice: parent class was like that: "parenet_class.ClassName2"
-     
-        # BEGIN TEST #
-        #self.re_class_def = re.compile(r"^class\s+([\w\d]+)\(([\w\d\._]+)\):")
-
-        #self.re_class_def = re.compile(r"^class\s+([\w\d]+):")
         self.re_class_def = re.compile(r"^class\s+([\w\d]+)\(\s*([\w\d\._]+)\s*\):")
         self.re_class_def_noparent = re.compile(r"^class\s+([\w\d]+)\s*:")
-        # END TEST #
 
         self.re_method_def = re.compile(r"^\s+def (\w+)\(.*\):")
         self.re_member_def = re.compile(r"^\s+self.([_\w]+)\s*=")
@@ -29,7 +23,7 @@ class UmlClassFigGenerator(object):
         self.parent_dic = {}  # class inheritance relation
         self.relate_dic = {}  # other class relation
         self.class_list = []  # list of class name
-        self.ignore_parents = ["object"]
+        self.ignore_parents = ["object", ""]
 
         self.class_name = None
         self.member_dic = {}  # list of member val name
@@ -83,16 +77,13 @@ class UmlClassFigGenerator(object):
 
             # def class
             m_cdef = self.re_class_def.match(line)
-            ## BEGIN TEST ##
             if m_cdef:
                 self._check_line_class_def(m_cdef.group(1), m_cdef.group(2))
                 continue
-            else:
-                m_cdef = self.re_class_def_noparent.match(line)
-                if m_cdef:
-                    self._check_line_class_def(m_cdef.group(1), "object")
-                    continue
-            ## END TEST ##
+            m_cdef_noparent = self.re_class_def_noparent.match(line)
+            if m_cdef_noparent:
+                self._check_line_class_def(m_cdef_noparent.group(1), "")
+                continue
 
             # def method
             m_mtd = self.re_method_def.match(line)
